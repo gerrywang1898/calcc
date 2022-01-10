@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using static CalcC.TokenType;
 
@@ -38,8 +39,79 @@ namespace CalcC
                 // If you get stuck, think about what the
                 // code would look like in C# and use
                 // sharplab.io to see what the CIL would be.
-                
-                throw new NotImplementedException();
+                var stack = new Stack<int>();
+                var registers = new Dictionary<char, int>();
+                if (tokenType == Number)
+                {
+                    cil += "\tldloc.0\n";
+                    cil += "\tldc.i4." + Int32.Parse(token) + "\n";
+                    cil += "\tcallvirt instance void class [System.Collections]System.Collections.Generic.Stack`1<int32>::Push(!0)\n";
+                }
+                else if (tokenType == BinaryOperator)
+                {
+                    if (token.Equals("+"))
+                    {
+                        cil += "\tldloc.0\n\tldloc.0\n";
+                        cil += "\tcallvirt instance !0 class [System.Collections]System.Collections.Generic.Stack`1<int32>::Pop()\n";
+                        cil += "\tldloc.0\n";
+                        cil += "\tcallvirt instance !0 class [System.Collections]System.Collections.Generic.Stack`1<int32>::Pop()\n";
+                        cil += "\tadd\n";
+                        cil += "\tcallvirt instance void class [System.Collections]System.Collections.Generic.Stack`1<int32>::Push(!0)\n";
+                    }
+                    else if (token.Equals("-"))
+                    {
+                        cil += "\tldloc.0\n\tldloc.0\n";
+                        cil += "\tcallvirt instance !0 class [System.Collections]System.Collections.Generic.Stack`1<int32>::Pop()\n";
+                        cil += "\tldloc.0\n";
+                        cil += "\tcallvirt instance !0 class [System.Collections]System.Collections.Generic.Stack`1<int32>::Pop()\n";
+                        cil += "\tsub\n";
+                        cil += "\tcallvirt instance void class [System.Collections]System.Collections.Generic.Stack`1<int32>::Push(!0)\n";
+                    }
+                    else if (token.Equals("*"))
+                    {
+                        cil += "\tldloc.0\n\tldloc.0\n";
+                        cil += "\tcallvirt instance !0 class [System.Collections]System.Collections.Generic.Stack`1<int32>::Pop()\n";
+                        cil += "\tldloc.0\n";
+                        cil += "\tcallvirt instance !0 class [System.Collections]System.Collections.Generic.Stack`1<int32>::Pop()\n";
+                        cil += "\tmul\n";
+                        cil += "\tcallvirt instance void class [System.Collections]System.Collections.Generic.Stack`1<int32>::Push(!0)\n";
+                    }
+                    else if (token.Equals("/"))
+                    {
+                        cil += "\tldloc.0\n\tldloc.0\n";
+                        cil += "\tcallvirt instance !0 class [System.Collections]System.Collections.Generic.Stack`1<int32>::Pop()\n";
+                        cil += "\tldloc.0\n";
+                        cil += "\tcallvirt instance !0 class [System.Collections]System.Collections.Generic.Stack`1<int32>::Pop()\n";
+                        cil += "\tdiv\n";
+                        cil += "\tcallvirt instance void class [System.Collections]System.Collections.Generic.Stack`1<int32>::Push(!0)\n";
+                    }
+                    else if (token.Equals("%"))
+                    {
+                        cil += "\tldloc.0\n\tldloc.0\n";
+                        cil += "\tcallvirt instance !0 class [System.Collections]System.Collections.Generic.Stack`1<int32>::Pop()\n";
+                        cil += "\tldloc.0\n";
+                        cil += "\tcallvirt instance !0 class [System.Collections]System.Collections.Generic.Stack`1<int32>::Pop()\n";
+                        cil += "\trem\n";
+                        cil += "\tcallvirt instance void class [System.Collections]System.Collections.Generic.Stack`1<int32>::Push(!0)\n";
+                    }
+                }
+                else if (token.Equals("sqrt"))
+                {
+                    cil += "\tldloc.0\n\tldloc.0\n";
+                    cil += "\tcallvirt instance !0 class [System.Collections]System.Collections.Generic.Stack`1<int32>::Pop()\n";
+                    cil += "\tldloc.0\n";
+                    cil += "\tcallvirt instance !0 class [System.Collections]System.Collections.Generic.Stack`1<int32>::Pop()\n";
+                    cil += "\tcall float64 [System.Private.CoreLib]System.Math::Sqrt(float64)\n";
+                    cil += "\tcallvirt instance void class [System.Collections]System.Collections.Generic.Stack`1<int32>::Push(!0)\n";
+                }
+                else
+                {
+                    throw new NotImplementedException();
+                }
+
+                cil += "\n";
+
+
             }
 
             // Emit the postamble.
@@ -55,7 +127,44 @@ namespace CalcC
         // types are given to you in TokenType.cs.
         private static TokenType GetTokenType(string token)
         {
-            throw new NotImplementedException();
+            int number;
+            if (Int32.TryParse(token, out number))
+            {
+                return Number;
+            }
+            else if (token.Equals("+"))
+            {
+                return BinaryOperator;
+            }
+            else if (token.Equals("-"))
+            {
+                return BinaryOperator;
+            }
+            else if (token.Equals("*"))
+            {
+                return BinaryOperator;
+            }
+            else if (token.Equals("/"))
+            {
+                return BinaryOperator;
+            }
+            else if (token.Equals("%"))
+            {
+                return BinaryOperator;
+            }
+            else if (token.Equals("sqrt"))
+            {
+                return UnaryOperator;
+            }
+            else if (token.Equals(""))
+            {
+                return Blank;
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
+
         }
 
         // Preamble:
